@@ -9,6 +9,7 @@ export function validate(req, res, next) {
     next();
 }
 
+// Registration validation rules
 export const registerValidator = [
     body("username")
         .trim()
@@ -27,3 +28,16 @@ export const registerValidator = [
 
     validate
 ];
+
+// Login validation rules
+export const loginValidator= [
+    body("email")
+        .trim()
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Please provide a valid email"),
+
+    body("password")
+        .notEmpty().withMessage("Password is required"),
+
+    validate
+]
