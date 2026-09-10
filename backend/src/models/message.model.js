@@ -7,7 +7,7 @@ const messageSchema = new mongoose.Schema(
             ref: "Chat",
             required: [true, "Message chat is required"]
         },
-        context: {
+        content: {
             type: String,
             required: [true, "Message context is required"],
             trim: true
