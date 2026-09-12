@@ -9,7 +9,7 @@ const messageSchema = new mongoose.Schema(
         },
         content: {
             type: String,
-            required: [true, "Message context is required"],
+            required: [true, "Message content is required"],
             trim: true
         },
         role: {
@@ -19,12 +19,43 @@ const messageSchema = new mongoose.Schema(
                 message: "Role must be either user or ai"
             },
             required: [true, "Message role is required"]
+        },
+        metadata: {
+            sources: [
+                {
+                    title: String,
+                    url: String,
+                    domain: String,
+                    snippet: String
+                }
+            ],
+            toolCalls: [
+                {
+                    tool: String,
+                    parameters: mongoose.Schema.Types.Mixed,
+                    result: mongoose.Schema.Types.Mixed
+                }
+            ],
+            model: {
+                type: String,
+                default: ""
+            },
+            provider: {
+                type: String,
+                default: ""
+            },
+            stopped: {
+                type: Boolean,
+                default: false
+            }
         }
     },
     {
         timestamps: true
     }
 );
+
+messageSchema.index({ chat: 1, createdAt: 1 });
 
 const messageModel = mongoose.model("Message", messageSchema);
 

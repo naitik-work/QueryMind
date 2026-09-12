@@ -3,9 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nova Search</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Nova-Search - Fast, intelligent, agentic search and coding assistant with real-time web awareness." />
+    <title>Nova-Search | Intelligent Agentic Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        try {
+          const theme = localStorage.getItem("nova_theme");
+          const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (theme === "dark" || (!theme && systemDark)) {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased transition-colors duration-150 selection:bg-cyan-500/20 selection:text-cyan-600 dark:selection:bg-cyan-500/30 dark:selection:text-cyan-300">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

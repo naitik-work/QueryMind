@@ -2,15 +2,23 @@ import { RouterProvider } from "react-router";
 import { router } from "./app.routes";
 import { useAuth } from "../features/auth/hook/useAuth";
 import { useEffect } from "react";
+import ThemeProvider from "./theme.context";
+import ToastProvider from "./toast.context";
 
 function App() {
-  const auth = useAuth();
+  const { handleGetMe } = useAuth();
 
   useEffect(() => {
-    auth.handleGetMe();
-  }, []);
+    handleGetMe();
+  }, [handleGetMe]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <ThemeProvider>
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
+    </ThemeProvider>
+  );
 }
 
 export default App;

@@ -1,128 +1,123 @@
-import React, { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { useSelector } from "react-redux";
+import { useEffect, useState, useCallback } from "react";
 import { useChat } from "../hooks/useChat";
+import { useAuth } from "../../auth/hook/useAuth";
+import Sidebar from "../components/Sidebar";
+import ChatArea from "../components/ChatArea";
+import Composer from "../components/Composer";
+import SettingsModal from "../components/SettingsModal";
 
 const Dashboard = () => {
-  const chat = useChat();
-  const [chatInput, setChatInput] = useState("");
-  const chats = useSelector((state) => state.chat.chats);
-  const currentChatId = useSelector((state) => state.chat.currentChatId);
+    const {
+        chats,
+        currentChatId,
+        isLoading,
+        error,
+        streamingMessage,
+        generationStatus,
+        activeAction,
+        handleSendMessage,
+        handleStopGeneration,
+        handleConfirmAction,
+        handleGetChats,
+        handleOpenChat,
+        handleDeleteChat,
+        handleRenameChat,
+        handleNewChat
+    } = useChat();
 
-  useEffect(() => {
-    chat.initializeSocketConnection();
-    chat.handleGetChats();
-  }, []);
+    const { user } = useAuth();
+    const [input, setInput] = useState("");
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [lastPrompt, setLastPrompt] = useState("");
 
-  const handleSubmitMessage = (event) => {
-    event.preventDefault();
+    // Load user chats on initial mount
+    useEffect(() => {
+        handleGetChats();
+    }, [handleGetChats]);
 
-    const trimmedMessage = chatInput.trim();
-    if (!trimmedMessage) {
-      return;
-    }
+    // Keyboard shortcut for New Chat (Ctrl+K / Cmd+K)
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                e.preventDefault();
+                handleNewChat();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [handleNewChat]);
 
-    chat.handleSendMessage({ message: trimmedMessage, chatId: currentChatId });
-    setChatInput("");
-  };
+    const handleSend = useCallback((messageText) => {
+        const trimmed = messageText.trim();
+        if (!trimmed) return;
 
-  const openChat = (chatId) => {
-    chat.handleOpenChat(chatId,chats);
-  };
+        setLastPrompt(trimmed);
+        handleSendMessage({ message: trimmed, chatId: currentChatId });
+        setInput("");
+    }, [currentChatId, handleSendMessage]);
 
-  return (
-    <main className="min-h-screen w-full bg-[#07090f] p-3 text-white md:p-5">
-      <section className="mx-auto flex h-[calc(100vh-1.5rem)] w-full gap-4 rounded-3xl border   p-1 md:h-[calc(100vh-2.5rem)] md:gap-6 md:p-1 border-none">
-        <aside className="hidden h-full w-72 shrink-0 rounded-3xl border  bg-[#080b12] p-4 md:flex md:flex-col">
-          <h1 className="mb-5 text-3xl font-semibold tracking-tight">
-            Perplexity
-          </h1>
+    const handleRetry = useCallback(() => {
+        if (lastPrompt) {
+            handleSend(lastPrompt);
+        }
+    }, [lastPrompt, handleSend]);
 
-          <div className="space-y-2">
-            {Object.values(chats).map((chat, index) => (
-              <button
-                onClick={() => {
-                  openChat(chat.id);
-                }}
-                key={index}
-                type="button"
-                className="w-full cursor-pointer rounded-xl border border-white/60 bg-transparent px-3 py-2 text-left text-base font-medium text-white/90 transition hover:border-white hover:text-white"
-              >
-                {chat.title}
-              </button>
-            ))}
-          </div>
-        </aside>
+    const currentChat = currentChatId ? chats[currentChatId] : null;
 
-        <section className="relative max-w-3/5 mx-auto flex h-full min-w-0 flex-1 flex-col gap-4">
-          <div className="messages flex-1 space-y-3 overflow-y-auto pr-1 pb-30">
-            {chats[currentChatId]?.messages.map((message) => (
-              <div
-                key={message.id}
-                className={`max-w-[82%] w-fit rounded-2xl px-4 py-3 text-sm md:text-base ${
-                  message.role === "user"
-                    ? "ml-auto rounded-br-none bg-white/12 text-white"
-                    : "mr-auto border border-white/25 bg-[#0f1626] text-white/90"
-                }`}
-              >
-                {message.role === "user" ? (
-                  <p>{message.content}</p>
-                ) : (
-                  <ReactMarkdown
-                    components={{
-                      p: ({ children }) => (
-                        <p className="mb-2 last:mb-0">{children}</p>
-                      ),
-                      ul: ({ children }) => (
-                        <ul className="mb-2 list-disc pl-5">{children}</ul>
-                      ),
-                      ol: ({ children }) => (
-                        <ol className="mb-2 list-decimal pl-5">{children}</ol>
-                      ),
-                      code: ({ children }) => (
-                        <code className="rounded bg-white/10 px-1 py-0.5">
-                          {children}
-                        </code>
-                      ),
-                      pre: ({ children }) => (
-                        <pre className="mb-2 overflow-x-auto rounded-xl bg-black/30 p-3">
-                          {children}
-                        </pre>
-                      ),
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
-                )}
-              </div>
-            ))}
-          </div>
+    return (
+        <main className="flex h-screen h-[100dvh] w-full max-w-full overflow-hidden bg-white dark:bg-black text-neutral-900 dark:text-neutral-100 transition-colors">
+            {/* Left Sidebar */}
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+                chats={chats}
+                currentChatId={currentChatId}
+                onSelectChat={handleOpenChat}
+                onNewChat={handleNewChat}
+                onDeleteChat={handleDeleteChat}
+                onRenameChat={handleRenameChat}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                isLoading={isLoading}
+            />
 
-          <footer className="rounded-3xl w-full absolute bottom-2 border border-white/60 bg-[#080b12] p-4 md:p-5">
-            <form
-              onSubmit={handleSubmitMessage}
-              className="flex flex-col gap-3 md:flex-row"
-            >
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(event) => setChatInput(event.target.value)}
-                placeholder="Type your message..."
-                className="w-full rounded-2xl border border-white/50 bg-transparent px-4 py-3 text-lg text-white outline-none transition placeholder:text-white/45 focus:border-white/90"
-              />
-              <button
-                type="submit"
-                disabled={!chatInput.trim()}
-                className="rounded-2xl border border-white/60 px-6 py-3 text-lg font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Send
-              </button>
-            </form>
-          </footer>
-        </section>
-      </section>
-    </main>
-  );
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col h-full min-w-0 relative">
+                {/* Chat Messages */}
+                <ChatArea
+                    chat={currentChat}
+                    currentChatId={currentChatId}
+                    streamingMessage={streamingMessage}
+                    activeAction={activeAction}
+                    isLoading={isLoading}
+                    error={error}
+                    onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
+                    onPromptSelect={handleSend}
+                    onConfirmAction={handleConfirmAction}
+                    onStopGeneration={handleStopGeneration}
+                    onRetry={lastPrompt ? handleRetry : null}
+                />
+
+                {/* Fixed Composer at bottom */}
+                <Composer
+                    input={input}
+                    setInput={setInput}
+                    onSend={handleSend}
+                    onStop={handleStopGeneration}
+                    isStreaming={Boolean(streamingMessage?.isStreaming)}
+                    isLoading={isLoading}
+                    generationStatus={generationStatus}
+                />
+            </div>
+
+            {/* Settings & Memory Modal */}
+            <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                user={user}
+            />
+        </main>
+    );
 };
 
 export default Dashboard;

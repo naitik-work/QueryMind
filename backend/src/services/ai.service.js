@@ -1,118 +1,121 @@
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-// import { ChatMistralAI } from "@langchain/mistralai";
-import { HumanMessage, SystemMessage, AIMessage, tool, createAgent } from "langchain";
-import * as z from "zod";
-import { searchInternet } from "./internet.service.js";
+import { aiProviderManager } from "./ai/provider.manager.js";
 
+/**
+ * Generate complete AI response with fallback handling
+ */
+export async function generateResponse(input) {
+    let messages = [];
+    let preferences = {};
+    let memories = [];
+    let extraContext = "";
 
-const geminiModel = new ChatGoogleGenerativeAI({
-    model: "gemini-3.5-flash-lite",
-    apiKey: process.env.GEMINI_API_KEY
-});
-
-
-const openRouterApiKey = process.env.OPEN_ROUTER_API_KEY;
-
-const searchInternetTool = tool(
-    searchInternet,
-    {
-        name: "searchInternet",
-        description: "Use this tool to get the latest relevant information from the  internet.",
-        schema: z.object({
-            query: z.string().describe("The search query to look up on the internet.")
-        })
+    if (Array.isArray(input)) {
+        messages = input;
+    } else if (input && typeof input === "object") {
+        messages = input.messages || [];
+        preferences = input.preferences || {};
+        memories = input.memories || [];
+        extraContext = input.extraContext || "";
     }
-);
 
-const agent = createAgent({
-    model: geminiModel,
-    tools: [searchInternetTool]
-})
-
-export async function generateResponse(messages) {
-    const response = await agent.invoke({
-        messages: [
-            new SystemMessage(`
-                You are a helpfull and precise assistant for answering questions.
-                If you don't know the answer, say you don't know.
-                If the question requires up-to-date information, use the "searchInternet" tool to get the latest information.
-                `),
-            ...messages.map(msg => {
-                if (msg.role == "user") {
-                    return new HumanMessage(msg.content);
-                } else if (msg.role == "ai") {
-                    return new AIMessage(msg.content);
-                }
-            })
-        ]
+    return await aiProviderManager.generateResponse({
+        messages,
+        preferences,
+        memories,
+        extraContext
     });
-
-    return response.messages[response.messages.length - 1].text;
 }
 
-export async function generateChatTitle(message) {
-    const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${openRouterApiKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                model: "openrouter/free",
-                messages: [
-                    {
-                        role: "system",
-                        content: `
-                            You are a helpful assistant that generates concise and descriptive titles for chat conversations.
+/**
+ * Stream AI response chunks with fallback handling
+ */
+export async function* streamResponse(input) {
+    let messages = [];
+    let preferences = {};
+    let memories = [];
+    let extraContext = "";
+    let onStatus = input.onStatus;
+    let signal = input.signal;
 
-                            Generate a title that captures the essence of the conversation in 2-4 words.
-                            Return only the title.
-                        `,
-                    },
-                    {
-                        role: "user",
-                        content: `Generate a title for this message: "${message}"`,
-                    },
-                ],
-            }),
-        }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        throw new Error(
-            `OpenRouter API error: ${data?.error?.message || "Unknown error"}`
-        );
+    if (Array.isArray(input)) {
+        messages = input;
+    } else if (input && typeof input === "object") {
+        messages = input.messages || [];
+        preferences = input.preferences || {};
+        memories = input.memories || [];
+        extraContext = input.extraContext || "";
     }
 
-    return data.choices[0].message.content.trim();
+    yield* aiProviderManager.streamResponse({
+        messages,
+        preferences,
+        memories,
+        extraContext,
+        onStatus,
+        signal
+    });
 }
 
+/**
+ * Generate a concise conversation title with multi-layer fallback
+ */
+export async function generateChatTitle(message) {
+    if (!message || !message.trim()) {
+        return "New conversation";
+    }
 
-// const mistralModel = new ChatMistralAI({
-//     model: "mistral-small-latest",
-//     apiKey: process.env.MISTRAL_API_KEY,
-// });
+    const cleanInput = message.trim();
+    const openRouterApiKey = process.env.OPEN_ROUTER_API_KEY;
 
+    if (openRouterApiKey) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-// Mistral logic - commented out for now
-// export async function generateChatTitle(message) {
-//     const response = await mistralModel.invoke([
-//         new SystemMessage(`
-//             You are a helpful assistant that generates concise and descriptive titles for chat conversations.
+            const model = process.env.FALLBACK_AI_MODEL || "openrouter/free";
 
-//             User will provide you with the first message of a chat conversation, and you will generate a title
-//             that captures the essence of the conversation in 2-4 words. The title should be clear, relevant, and engaging,
-//             giving users a quick understanding of the chat's topic.
-//         `),
-//         new HumanMessage(`
-//             Generate a title for a chat conversation based on the following first message:
-//             "${message}"
-//         `)
-//     ]);
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${openRouterApiKey}`,
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:5173",
+                    "X-Title": "Nova-Search"
+                },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are a title generator. Generate a concise, engaging title capturing the topic in 2 to 4 words. Do not use quotes. Return ONLY the title text."
+                        },
+                        {
+                            role: "user",
+                            content: `Generate title for: "${cleanInput.slice(0, 150)}"`
+                        }
+                    ],
+                    max_tokens: 16,
+                    temperature: 0.3
+                }),
+                signal: controller.signal
+            });
 
-//     return response.text;
-// }
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                const data = await response.json();
+                const title = data.choices?.[0]?.message?.content?.trim().replace(/^["']|["']$/g, "");
+                if (title && title.length > 1 && title.length < 50) {
+                    return title;
+                }
+            }
+        } catch (err) {
+            console.warn("[TITLE] OpenRouter title generation warning:", err.message);
+        }
+    }
+
+    // Deterministic fallback title based on first words
+    const words = cleanInput.split(/\s+/).slice(0, 4).join(" ");
+    const fallbackTitle = words.charAt(0).toUpperCase() + words.slice(1);
+    return fallbackTitle.length > 40 ? `${fallbackTitle.slice(0, 37)}...` : fallbackTitle;
+}

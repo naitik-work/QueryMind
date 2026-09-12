@@ -25,9 +25,34 @@ const userSchema = new mongoose.Schema(
             // minlength: [8, "Password must be at least 8 characters long"],
             select: false
         },
-        verified: {
+            verified: {
             type: Boolean,
             default: false
+        },
+        preferences: {
+            personalizationEnabled: {
+                type: Boolean,
+                default: true
+            },
+            responseStyle: {
+                type: String,
+                enum: ["concise", "balanced", "detailed"],
+                default: "balanced"
+            },
+            technicalLevel: {
+                type: String,
+                enum: ["beginner", "intermediate", "advanced"],
+                default: "intermediate"
+            },
+            preferredLanguage: {
+                type: String,
+                default: "en"
+            },
+            preferredName: {
+                type: String,
+                trim: true,
+                default: ""
+            }
         }
     },
     {
