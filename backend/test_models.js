@@ -46,7 +46,7 @@ async function testOpenRouterFreeList() {
                     "Authorization": `Bearer ${process.env.OPEN_ROUTER_API_KEY}`,
                     "Content-Type": "application/json",
                     "HTTP-Referer": "http://localhost:5173",
-                    "X-Title": "Nova-Search"
+                    "X-Title": "QueryMind"
                 },
                 body: JSON.stringify({
                     model,

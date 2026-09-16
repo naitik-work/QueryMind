@@ -80,7 +80,7 @@ export async function generateChatTitle(message) {
                     "Authorization": `Bearer ${openRouterApiKey}`,
                     "Content-Type": "application/json",
                     "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:5173",
-                    "X-Title": "Nova-Search"
+                    "X-Title": "QueryMind"
                 },
                 body: JSON.stringify({
                     model,

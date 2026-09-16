@@ -226,7 +226,7 @@ export function initSocket(httpServer) {
                         details: draftDetails
                     });
 
-                    emailAgentContext = `[EMAIL AGENT DIRECTIVE]: The user wants to compose or send an email/mail. Nova's interactive Email Action Card has ALREADY been generated and displayed directly above in the UI with recipient: "${draftDetails.to || "(to be confirmed)"}", subject: "${draftDetails.subject}", and the drafted content. DO NOT state that you cannot send emails or lack email access. DO NOT provide nodemailer scripts or local code. Simply inform the user that their email draft is ready above for review and instruct them to click "Confirm & Send Email" to send it.`;
+                    emailAgentContext = `[EMAIL AGENT DIRECTIVE]: The user wants to compose or send an email/mail. QueryMind's interactive Email Action Card has ALREADY been generated and displayed directly above in the UI with recipient: "${draftDetails.to || "(to be confirmed)"}", subject: "${draftDetails.subject}", and the drafted content. DO NOT state that you cannot send emails or lack email access. DO NOT provide nodemailer scripts or local code. Simply inform the user that their email draft is ready above for review and instruct them to click "Confirm & Send Email" to send it.`;
                 }
 
                 // 4. Stream AI Response
@@ -278,7 +278,7 @@ export function initSocket(httpServer) {
                     const finalContent = accumulatedText.trim();
                     if (!finalContent) {
                         throw new Error(
-                            "Nova was unable to generate a valid response. Please retry your question or contact support at hamzakhantz@gmail.com."
+                            "QueryMind was unable to generate a valid response. Please retry your question or contact support at hamzakhantz@gmail.com."
                         );
                     }
 
@@ -319,7 +319,7 @@ export function initSocket(httpServer) {
                     chatId: currentChatId,
                     message:
                         err.message ||
-                        "Nova is temporarily unable to generate a response because the available AI models have reached their usage limit. Please try again later. If the issue continues, contact the developer at hamzakhantz@gmail.com.",
+                        "QueryMind is temporarily unable to generate a response because the available AI models have reached their usage limit. Please try again later. If the issue continues, contact the developer at hamzakhantz@gmail.com.",
                     code: err.code || "STREAM_ERROR"
                 });
             }

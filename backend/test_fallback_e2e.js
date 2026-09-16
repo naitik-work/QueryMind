@@ -7,7 +7,7 @@ async function testFallbackStream() {
 
     const stream = openrouter.stream({
         messages: [{ role: "user", content: "Write a 2-line poem about the ocean." }],
-        systemPrompt: "You are Nova, an AI assistant.",
+        systemPrompt: "You are QueryMind, an AI assistant.",
         onStatus: s => console.log("Status:", s)
     });
 

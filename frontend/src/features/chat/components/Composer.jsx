@@ -177,7 +177,7 @@ export default function Composer({
                     placeholder={
                         battleMode
                             ? "Ask a question to compare two AI models in battle..."
-                            : "Ask Nova anything, search the web, or draft an email..."
+                            : "Ask QueryMind anything, search the web, or draft an email..."
                     }
                     className="w-full resize-none bg-transparent px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none max-h-40 overflow-y-auto leading-relaxed"
                 />
@@ -235,7 +235,7 @@ export default function Composer({
             </form>
 
             <div className="flex items-center justify-between mt-2 px-1 text-[11px] text-neutral-400 dark:text-neutral-500">
-                <span className="truncate pr-2">Nova synthesizes real-time sources with structured formatting.</span>
+                <span className="truncate pr-2">QueryMind synthesizes real-time sources with structured formatting.</span>
                 <span className="hidden sm:inline shrink-0">
                     <strong>Shift + Enter</strong> for new line
                 </span>

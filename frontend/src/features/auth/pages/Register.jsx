@@ -64,7 +64,7 @@ const Register = () => {
             Create your account
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            Join Nova to explore intelligent AI search and agents
+            Join QueryMind to explore intelligent AI search and agents
           </p>
         </div>
 

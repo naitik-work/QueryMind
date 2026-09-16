@@ -104,7 +104,7 @@ export default function BattleResponse({
             </div>
 
             {/* Markdown Body */}
-            <div className="flex-1 p-4 overflow-y-auto text-xs sm:text-sm leading-relaxed text-neutral-900 dark:text-neutral-100 prose-nova select-text">
+            <div className="flex-1 p-4 overflow-y-auto text-xs sm:text-sm leading-relaxed text-neutral-900 dark:text-neutral-100 prose-QueryMind select-text">
                 <ReactMarkdown
                     components={{
                         code({ inline, className, children, ...props }) {

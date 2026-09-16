@@ -88,7 +88,7 @@ async function sendViaResend(mailOptions) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            from: process.env.RESEND_FROM || "Nova Search <onboarding@resend.dev>",
+            from: process.env.RESEND_FROM || "QueryMind Search <onboarding@resend.dev>",
             to: [mailOptions.to],
             subject: mailOptions.subject,
             html: mailOptions.html,

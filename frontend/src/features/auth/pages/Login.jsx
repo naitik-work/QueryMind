@@ -27,7 +27,7 @@ const Login = () => {
     });
 
     if (result.success) {
-      toast.success("Welcome back to Nova!");
+      toast.success("Welcome back to QueryMind!");
       navigate("/");
     } else if (result.error) {
       toast.error(result.error);
@@ -43,7 +43,7 @@ const Login = () => {
             N
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-            Welcome back to Nova
+            Welcome back to QueryMind
           </h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
             Sign in to continue your conversations and searches

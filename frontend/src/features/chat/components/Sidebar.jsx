@@ -88,7 +88,7 @@ export default function Sidebar({
                         </div>
                         <div className="flex items-center gap-1.5">
                             <span className="font-semibold text-sm tracking-tight text-neutral-900 dark:text-white">
-                                Nova
+                                QueryMind
                             </span>
                             <span className="px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wide bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">
                                 2.0

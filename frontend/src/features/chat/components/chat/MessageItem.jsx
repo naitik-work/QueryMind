@@ -52,7 +52,7 @@ export default function MessageItem({
             <div className="select-text max-w-[92%] sm:max-w-[80%] rounded-2xl rounded-bl-xs px-4 py-3 text-sm bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
                 <SourcesList sources={sources} />
 
-                <div className="select-text prose-nova">
+                <div className="select-text prose-QueryMind">
                     <ReactMarkdown
                         components={{
                             code({ inline, className, children, ...props }) {

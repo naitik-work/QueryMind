@@ -238,7 +238,7 @@ export default function ChatArea({
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300">
             <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white"></span>
-            Nova
+            QueryMind
           </span>
         </div>
       </header>
@@ -317,7 +317,7 @@ export default function ChatArea({
               <div className="select-text max-w-[92%] sm:max-w-[80%] rounded-2xl rounded-bl-xs px-4 py-3 text-sm bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100">
                 <SourcesList sources={streamingMessage.sources} />
 
-                <div className="select-text prose-nova">
+                <div className="select-text prose-QueryMind">
                   <ReactMarkdown
                     components={{
                       code({ inline, className, children, ...props }) {

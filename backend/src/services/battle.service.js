@@ -84,7 +84,7 @@ async function invokeBattleModel({ provider, modelName, query }) {
                         "Authorization": `Bearer ${apiKey}`,
                         "Content-Type": "application/json",
                         "HTTP-Referer": process.env.FRONTEND_URL || "http://localhost:5173",
-                        "X-Title": "Nova-Search-Battle"
+                        "X-Title": "QueryMind-Battle"
                     },
                     body: JSON.stringify({
                         model: candidate,

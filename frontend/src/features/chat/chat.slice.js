@@ -11,7 +11,7 @@ const chatSlice = createSlice({
         generationStatus: null,
         activeAction: null,
         searchQuery: "",
-        battleMode: typeof window !== "undefined" ? localStorage.getItem("nova_battle_mode") === "true" : false
+        battleMode: typeof window !== "undefined" ? localStorage.getItem("QueryMind_battle_mode") === "true" : false
     },
     reducers: {
         createNewChat: (state, action) => {
@@ -148,13 +148,13 @@ const chatSlice = createSlice({
         setBattleMode: (state, action) => {
             state.battleMode = Boolean(action.payload);
             if (typeof window !== "undefined") {
-                localStorage.setItem("nova_battle_mode", state.battleMode ? "true" : "false");
+                localStorage.setItem("QueryMind_battle_mode", state.battleMode ? "true" : "false");
             }
         },
         toggleBattleMode: (state) => {
             state.battleMode = !state.battleMode;
             if (typeof window !== "undefined") {
-                localStorage.setItem("nova_battle_mode", state.battleMode ? "true" : "false");
+                localStorage.setItem("QueryMind_battle_mode", state.battleMode ? "true" : "false");
             }
         }
     }

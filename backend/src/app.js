@@ -31,7 +31,7 @@ app.use(cors({
 
 app.get("/", (req, res) => {
     res.json({
-        name: "Nova-Search API",
+        name: "QueryMind API",
         version: "2.0.0",
         status: "operational"
     });

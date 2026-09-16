@@ -48,23 +48,23 @@ export async function register(req, res) {
         try {
             await sendEmail({
                 to: email,
-                subject: "Verify your email - Nova-Search",
+                subject: "Verify your email - QueryMind",
                 html: `
                     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 12px; background: #fafafa;">
-                        <h2 style="color: #09090b; margin-top: 0;">Welcome to Nova-Search!</h2>
+                        <h2 style="color: #09090b; margin-top: 0;">Welcome to QueryMind!</h2>
                         <p style="color: #3f3f46; font-size: 15px; line-height: 1.5;">Hi ${username},</p>
-                        <p style="color: #3f3f46; font-size: 15px; line-height: 1.5;">Thank you for registering with Nova-Search. Please verify your email address to activate your account:</p>
+                        <p style="color: #3f3f46; font-size: 15px; line-height: 1.5;">Thank you for registering with QueryMind. Please verify your email address to activate your account:</p>
                         <div style="margin: 28px 0;">
                             <a href="${verificationUrl}" style="background: #0ea5e9; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; display: inline-block;">Verify Email</a>
                         </div>
                         <p style="color: #71717a; font-size: 13px; line-height: 1.4;">Or copy and paste this link in your browser:</p>
                         <p style="color: #0ea5e9; font-size: 13px; word-break: break-all;">${verificationUrl}</p>
-                        <p style="color: #71717a; font-size: 13px; margin-top: 24px;">If you did not sign up for Nova-Search, please disregard this email.</p>
+                        <p style="color: #71717a; font-size: 13px; margin-top: 24px;">If you did not sign up for QueryMind, please disregard this email.</p>
                         <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 24px 0;" />
-                        <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 0;">&copy; ${new Date().getFullYear()} Nova-Search. All rights reserved.</p>
+                        <p style="color: #a1a1aa; font-size: 12px; margin-bottom: 0;">&copy; ${new Date().getFullYear()} QueryMind. All rights reserved.</p>
                     </div>
                 `,
-                text: `Hi ${username},\n\nPlease verify your email by visiting: ${verificationUrl}\n\nBest regards,\nThe Nova-Search Team`
+                text: `Hi ${username},\n\nPlease verify your email by visiting: ${verificationUrl}\n\nBest regards,\nThe QueryMind Team`
             });
         } catch (emailError) {
             emailSent = false;

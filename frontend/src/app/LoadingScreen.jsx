@@ -1,4 +1,4 @@
-export default function LoadingScreen({ message = "Initializing Nova workspace..." }) {
+export default function LoadingScreen({ message = "Initializing QueryMind workspace..." }) {
     return (
         <div className="min-h-screen h-[100dvh] w-full flex flex-col items-center justify-center bg-white dark:bg-black text-neutral-900 dark:text-neutral-100 transition-colors relative overflow-hidden select-none">
             {/* Ambient background glow */}
@@ -16,7 +16,7 @@ export default function LoadingScreen({ message = "Initializing Nova workspace..
                 {/* Brand title and version badge */}
                 <div className="flex items-center gap-2 pt-1">
                     <span className="font-semibold text-base tracking-tight text-neutral-900 dark:text-white">
-                        Nova
+                        QueryMind
                     </span>
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wider bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700">
                         2.0

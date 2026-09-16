@@ -4,7 +4,7 @@ import { ThemeContext } from "./theme.hook";
 export function ThemeProvider({ children }) {
     const [theme, setThemeState] = useState(() => {
         try {
-            return localStorage.getItem("nova_theme") || "system";
+            return localStorage.getItem("QueryMind_theme") || "system";
         } catch {
             return "system";
         }
@@ -35,7 +35,7 @@ export function ThemeProvider({ children }) {
         }
 
         try {
-            localStorage.setItem("nova_theme", theme);
+            localStorage.setItem("QueryMind_theme", theme);
         } catch (e) {
             console.warn("Could not persist theme to localStorage:", e);
         }

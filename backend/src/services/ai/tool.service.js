@@ -89,10 +89,10 @@ export async function executeConfirmedTool(toolName, params) {
                 <div style="font-family: sans-serif; padding: 16px; border: 1px solid #e4e4e7; border-radius: 8px;">
                     <p style="white-space: pre-wrap; color: #18181b; font-size: 15px; line-height: 1.6;">${body.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
                     <hr style="border: none; border-top: 1px solid #e4e4e7; margin: 20px 0;" />
-                    <p style="color: #71717a; font-size: 12px;">Sent via Nova-Search Agent</p>
+                    <p style="color: #71717a; font-size: 12px;">Sent via QueryMind Agent</p>
                 </div>
             `,
-            text: `${body}\n\n---\nSent via Nova-Search Agent`
+            text: `${body}\n\n---\nSent via QueryMind Agent`
         });
 
         return {

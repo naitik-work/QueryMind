@@ -68,7 +68,7 @@ export function parseEmailDraftDetails(query = "") {
     const to = emailMatch ? emailMatch[1] : "";
 
     // 2. Extract subject if specified
-    let subject = "Update from Nova";
+    let subject = "Update from QueryMind";
     const subjectQuoted = text.match(/(?:with\s+)?subject\s*[:="']+\s*([^"'\n\r]+)["']/i);
     const subjectColon = text.match(/subject:\s*([^\n\r,]+)/i);
     const subjectAbout = text.match(/(?:about|regarding)\s+([^,.\n\r]+)/i);
