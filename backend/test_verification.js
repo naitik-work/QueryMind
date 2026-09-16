@@ -56,5 +56,12 @@ console.log("✓ Memory formatter outputs context string:", contextString.includ
 const title = await generateChatTitle("how does react fiber reconciliation algorithm work under the hood");
 console.log("✓ Title generation produced:", title);
 
+// 9. Check Battle Arena Architecture
+import { executeBattleService } from "./src/services/battle.service.js";
+import { battleGraph } from "./src/services/ai/battle.graph.js";
+console.log("✓ Message model battle metadata schema exists:", !!messageModel.schema.path("metadata.battle.isBattle"));
+console.log("✓ Battle service imported successfully:", typeof executeBattleService === "function");
+console.log("✓ Battle LangGraph compiled workflow exists:", !!battleGraph && typeof battleGraph.invoke === "function");
+
 console.log("--- ALL BACKEND VERIFICATIONS PASSED ---");
 process.exit(0);

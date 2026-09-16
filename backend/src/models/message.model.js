@@ -47,6 +47,32 @@ const messageSchema = new mongoose.Schema(
             stopped: {
                 type: Boolean,
                 default: false
+            },
+            battle: {
+                isBattle: {
+                    type: Boolean,
+                    default: false
+                },
+                response1: {
+                    model: String,
+                    provider: String,
+                    content: String
+                },
+                response2: {
+                    model: String,
+                    provider: String,
+                    content: String
+                },
+                judge: {
+                    model: String,
+                    provider: String,
+                    winner: String,
+                    response1Score: Number,
+                    response2Score: Number,
+                    response1Reasoning: String,
+                    response2Reasoning: String,
+                    finalReasoning: String
+                }
             }
         }
     },

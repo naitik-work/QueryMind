@@ -1,4 +1,5 @@
 import { generateChatTitle, generateResponse } from "../services/ai.service.js";
+import { executeBattleService } from "../services/battle.service.js";
 import chatModel from "../models/chat.model.js";
 import messageModel from "../models/message.model.js";
 import userModel from "../models/user.model.js";
@@ -7,7 +8,7 @@ import { detectAndStoreDurableMemory } from "../services/ai/memory.service.js";
 
 export async function sendMessage(req, res) {
     try {
-        const { message, chat: chatId } = req.body;
+        const { message, chat: chatId, battleMode } = req.body;
 
         if (!message || !message.trim()) {
             return res.status(400).json({
@@ -72,6 +73,42 @@ export async function sendMessage(req, res) {
             memories = await memoryModel.find({ user: req.user.id })
                 .sort({ importance: -1, createdAt: -1 })
                 .limit(15);
+        }
+
+        if (battleMode) {
+            const battleResult = await executeBattleService({ query: message.trim() });
+
+            const aiMessage = await messageModel.create({
+                chat: currentChatId,
+                content: battleResult.content,
+                role: "ai",
+                metadata: {
+                    sources: [],
+                    model: "battle-arena",
+                    provider: "langgraph",
+                    stopped: false,
+                    battle: {
+                        isBattle: true,
+                        response1: battleResult.response1,
+                        response2: battleResult.response2,
+                        judge: battleResult.judge
+                    }
+                }
+            });
+
+            await chatModel.findByIdAndUpdate(currentChatId, { updatedAt: new Date() });
+
+            return res.status(201).json({
+                success: true,
+                title,
+                chat,
+                userMessage,
+                aiMessage,
+                battleMode: true,
+                response1: battleResult.response1,
+                response2: battleResult.response2,
+                judge: battleResult.judge
+            });
         }
 
         const aiResult = await generateResponse({

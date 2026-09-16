@@ -5,6 +5,7 @@ import messageModel from "../models/message.model.js";
 import userModel from "../models/user.model.js";
 import memoryModel from "../models/memory.model.js";
 import { generateChatTitle, streamResponse } from "../services/ai.service.js";
+import { executeBattleService } from "../services/battle.service.js";
 import { isEmailDraftRequest, parseEmailDraftDetails } from "../services/ai/gemini.provider.js";
 import { executeConfirmedTool } from "../services/ai/tool.service.js";
 import { detectAndStoreDurableMemory } from "../services/ai/memory.service.js";
@@ -67,7 +68,7 @@ export function initSocket(httpServer) {
          * Handle incoming chat message with real-time streaming
          */
         socket.on("chat:send", async data => {
-            const { message, chatId } = data || {};
+            const { message, chatId, battleMode } = data || {};
 
             if (!message || !message.trim()) {
                 socket.emit("chat:error", { message: "Message content cannot be empty" });
@@ -125,6 +126,60 @@ export function initSocket(httpServer) {
                         createdAt: userMessage.createdAt
                     }
                 });
+
+                if (battleMode) {
+                    socket.emit("chat:status", {
+                        chatId: currentChatId,
+                        status: "generating",
+                        label: "Generating two responses in parallel..."
+                    });
+
+                    const battleResult = await executeBattleService({
+                        query: message.trim(),
+                        onStatus: (statusObj) => {
+                            socket.emit("chat:status", {
+                                chatId: currentChatId,
+                                status: statusObj.status,
+                                label: statusObj.label
+                            });
+                        }
+                    });
+
+                    const aiMessage = await messageModel.create({
+                        chat: currentChatId,
+                        content: battleResult.content,
+                        role: "ai",
+                        metadata: {
+                            sources: [],
+                            model: "battle-arena",
+                            provider: "langgraph",
+                            stopped: false,
+                            battle: {
+                                isBattle: true,
+                                response1: battleResult.response1,
+                                response2: battleResult.response2,
+                                judge: battleResult.judge
+                            }
+                        }
+                    });
+
+                    await chatModel.findByIdAndUpdate(currentChatId, { updatedAt: new Date() });
+
+                    socket.emit("chat:done", {
+                        chatId: currentChatId,
+                        message: {
+                            id: aiMessage._id,
+                            content: aiMessage.content,
+                            role: "ai",
+                            metadata: aiMessage.metadata,
+                            createdAt: aiMessage.createdAt
+                        }
+                    });
+
+                    // Background durable memory detection
+                    detectAndStoreDurableMemory({ userId, message }).catch(() => {});
+                    return;
+                }
 
                 // 3. Load Context & Memory
                 socket.emit("chat:status", {

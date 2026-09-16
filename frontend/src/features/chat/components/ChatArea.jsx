@@ -2,123 +2,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { useToast } from "../../../app/toast.hook";
-
-function CodeBlock({ children, className }) {
-  const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
-  const codeString = String(children).replace(/\n$/, "");
-  const match = /language-(\w+)/.exec(className || "");
-  const language = match ? match[1] : "text";
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(codeString);
-    setCopied(true);
-    toast.success("Code copied to clipboard");
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="relative my-3 rounded-xl overflow-hidden border border-neutral-200 dark:border-neutral-800 bg-neutral-950 text-neutral-100 text-xs shadow-2xs">
-      <div className="flex items-center justify-between px-3.5 py-1.5 bg-neutral-900/90 border-b border-neutral-800 text-neutral-400 font-mono text-[11px]">
-        <span>{language}</span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="flex cursor-pointer items-center gap-1 text-neutral-400 hover:text-white transition"
-          title="Copy code"
-        >
-          {copied ? (
-            <>
-              <svg
-                className="w-3.5 h-3.5 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <span className="text-white font-medium">Copied!</span>
-            </>
-          ) : (
-            <>
-              <svg
-                className="w-3.5 h-3.5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-              <span>Copy</span>
-            </>
-          )}
-        </button>
-      </div>
-      <pre className="p-3.5 overflow-x-auto font-mono text-xs leading-relaxed">
-        <code>{children}</code>
-      </pre>
-    </div>
-  );
-}
-
-function SourcesList({ sources }) {
-  if (!sources || sources.length === 0) return null;
-
-  return (
-    <div className="mb-3 space-y-1.5">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-        <svg
-          className="w-3.5 h-3.5 text-neutral-700 dark:text-neutral-300"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-          />
-        </svg>
-        <span>Sources ({sources.length})</span>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {sources.map((src, idx) => (
-          <a
-            key={idx}
-            href={src.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group cursor-pointer flex flex-col p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/50 hover:bg-neutral-50 dark:hover:bg-zinc-800 hover:border-neutral-400 dark:hover:border-neutral-600 transition shadow-2xs"
-          >
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-neutral-500 dark:text-neutral-400 truncate mb-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 dark:bg-neutral-500"></span>
-              <span className="truncate">{src.domain || "Web Source"}</span>
-            </div>
-            <p className="text-xs font-medium text-neutral-900 dark:text-neutral-100 group-hover:underline line-clamp-1 transition">
-              {src.title}
-            </p>
-            {src.snippet && (
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 line-clamp-2 mt-0.5 leading-snug">
-                {src.snippet}
-              </p>
-            )}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
+import CodeBlock from "./chat/CodeBlock";
+import SourcesList from "./chat/SourcesList";
+import MessageItem from "./chat/MessageItem";
 
 function EmailActionCard({ action, onConfirm, onCancel }) {
   const [to, setTo] = useState(action.details?.to || "");
@@ -405,94 +291,16 @@ export default function ChatArea({
         )}
 
         {/* Message List */}
-        <div className="max-w-3xl mx-auto space-y-6 ">
-          {messages.map((msg, index) => {
-            const isUser = msg.role === "user";
-            const sources = msg.metadata?.sources || [];
-
-            return (
-              <div
-                key={msg.id || index}
-                className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
-              >
-                <div
-                  className={`select-text max-w-[92%] sm:max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
-                    isUser
-                      ? "bg-neutral-950 dark:bg-neutral-800 dark:text-white  rounded-br-xs shadow-xs"
-                      : "bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-xs"
-                  }`}
-                >
-                  {isUser ? (
-                    <p className="select-text cursor-text whitespace-pre-wrap leading-relaxed">
-                      {msg.content}
-                    </p>
-                  ) : (
-                    <div className="select-text prose-nova">
-                      {/* Render Sources if used */}
-                      <SourcesList sources={sources} />
-
-                      {/* Markdown content */}
-                      <ReactMarkdown
-                        components={{
-                          code({ inline, className, children, ...props }) {
-                            if (inline) {
-                              return (
-                                <code
-                                  className="px-1.5 py-0.5 rounded bg-neutral-200/80 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-mono text-xs"
-                                  {...props}
-                                >
-                                  {children}
-                                </code>
-                              );
-                            }
-                            return (
-                              <CodeBlock className={className}>
-                                {children}
-                              </CodeBlock>
-                            );
-                          },
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
-                    </div>
-                  )}
-                </div>
-
-                {/* Assistant message action buttons */}
-                {!isUser && (
-                  <div className="flex items-center gap-1 mt-1 text-neutral-400 dark:text-neutral-500 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => handleCopyResponse(msg.content, index)}
-                      className="p-1 cursor-pointer rounded hover:text-neutral-900 dark:hover:text-neutral-200 transition"
-                      title="Copy response"
-                    >
-                      {copiedIndex === index ? (
-                        <span className="text-neutral-900 dark:text-neutral-100 font-medium text-[11px]">
-                          Copied
-                        </span>
-                      ) : (
-                        <svg
-                          className="w-3.5 h-3.5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                          />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <div className="max-w-3xl mx-auto space-y-6">
+          {messages.map((msg, index) => (
+            <MessageItem
+              key={msg.id || index}
+              msg={msg}
+              index={index}
+              onCopyResponse={handleCopyResponse}
+              copiedIndex={copiedIndex}
+            />
+          ))}
 
           {/* Active Email Action Draft */}
           {activeAction && (

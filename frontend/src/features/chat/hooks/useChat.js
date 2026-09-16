@@ -24,7 +24,9 @@ import {
     stopStreaming,
     deleteChatSuccess,
     renameChatSuccess,
-    resetActiveChat
+    resetActiveChat,
+    setBattleMode,
+    toggleBattleMode
 } from "../chat.slice";
 import { useToast } from "../../../app/toast.hook";
 
@@ -39,14 +41,17 @@ export const useChat = () => {
     const generationStatus = useSelector(state => state.chat.generationStatus);
     const activeAction = useSelector(state => state.chat.activeAction);
     const searchQuery = useSelector(state => state.chat.searchQuery);
+    const battleMode = useSelector(state => state.chat.battleMode);
 
     const activeChatRef = useRef(currentChatId);
     const streamingMessageRef = useRef(streamingMessage);
+    const battleModeRef = useRef(battleMode);
 
     useEffect(() => {
         activeChatRef.current = currentChatId;
         streamingMessageRef.current = streamingMessage;
-    }, [currentChatId, streamingMessage]);
+        battleModeRef.current = battleMode;
+    }, [currentChatId, streamingMessage, battleMode]);
 
     // Set up and clean up Socket.IO listeners
     useEffect(() => {
@@ -176,16 +181,19 @@ export const useChat = () => {
 
         dispatch(setError(null));
 
+        const isBattle = Boolean(battleModeRef.current);
+
         if (socket && socket.connected) {
             socket.emit("chat:send", {
                 message,
-                chatId: targetChatId
+                chatId: targetChatId,
+                battleMode: isBattle
             });
         } else {
             // HTTP Fallback
             try {
                 dispatch(setLoading(true));
-                const data = await sendMessageHttp({ message, chatId: targetChatId });
+                const data = await sendMessageHttp({ message, chatId: targetChatId, battleMode: isBattle });
                 const { chat, aiMessage, title } = data;
                 const newOrExistingChatId = targetChatId || chat?._id;
 
@@ -343,6 +351,7 @@ export const useChat = () => {
         generationStatus,
         activeAction,
         searchQuery,
+        battleMode,
         handleSendMessage,
         handleStopGeneration,
         handleConfirmAction,
@@ -351,6 +360,8 @@ export const useChat = () => {
         handleDeleteChat,
         handleRenameChat,
         handleNewChat,
+        handleToggleBattleMode: () => dispatch(toggleBattleMode()),
+        handleSetBattleMode: (val) => dispatch(setBattleMode(val)),
         clearChatError: () => dispatch(setError(null))
     };
 };

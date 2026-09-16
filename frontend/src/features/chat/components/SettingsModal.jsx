@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getMemories, createMemory, deleteMemory, getUserPreferences, updateUserPreferences } from "../service/chat.api";
 import { useTheme } from "../../../app/theme.hook";
 import { useToast } from "../../../app/toast.hook";
+import BattleModeToggle from "./settings/BattleModeToggle";
 
 export default function SettingsModal({ isOpen, onClose, user }) {
     const { theme, setTheme } = useTheme();
@@ -208,6 +209,11 @@ export default function SettingsModal({ isOpen, onClose, user }) {
                                 </button>
                             ))}
                         </div>
+                    </div>
+
+                    {/* AI Battle Mode Setting */}
+                    <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                        <BattleModeToggle />
                     </div>
 
                     {/* Personalization Toggle */}

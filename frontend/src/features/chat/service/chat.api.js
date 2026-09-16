@@ -11,8 +11,8 @@ const api = axios.create({
 });
 
 // Chat Endpoints
-export const sendMessage = async ({ message, chatId }) => {
-    const response = await api.post("/api/chats/message", { message, chat: chatId });
+export const sendMessage = async ({ message, chatId, battleMode }) => {
+    const response = await api.post("/api/chats/message", { message, chat: chatId, battleMode });
     return response.data;
 };
 

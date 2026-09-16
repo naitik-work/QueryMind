@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useToast } from "../../../app/toast.hook";
+import { toggleBattleMode } from "../chat.slice";
 
 export default function Composer({
     input,
@@ -10,6 +12,8 @@ export default function Composer({
     isLoading,
     generationStatus
 }) {
+    const dispatch = useDispatch();
+    const battleMode = useSelector(state => state.chat.battleMode);
     const textareaRef = useRef(null);
     const recognitionRef = useRef(null);
     const [isListening, setIsListening] = useState(false);
@@ -132,14 +136,33 @@ export default function Composer({
     return (
         <div className="w-full max-w-3xl mx-auto px-3 sm:px-4 pb-4">
             {/* Status indicator pill above composer if active */}
-            {generationStatus && (
+            {generationStatus ? (
                 <div className="flex items-center justify-center gap-2 mb-2">
                     <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-800 shadow-2xs animate-pulse-subtle">
                         <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white animate-ping"></span>
                         <span>{generationStatus}</span>
                     </span>
                 </div>
-            )}
+            ) : battleMode ? (
+                <div className="flex items-center justify-between px-3 py-1 mb-2 rounded-xl bg-neutral-100/80 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 text-xs">
+                    <div className="flex items-center gap-2">
+                        <span className="text-neutral-900 dark:text-white font-semibold flex items-center gap-1.5">
+                            <span>⚔</span>
+                            <span>AI Battle Mode ON</span>
+                        </span>
+                        <span className="text-[11px] text-neutral-500 dark:text-neutral-400 hidden sm:inline">
+                            Query will run two models in parallel with AI Judge evaluation
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => dispatch(toggleBattleMode())}
+                        className="text-[11px] text-neutral-500 hover:text-neutral-900 dark:hover:text-white underline cursor-pointer"
+                    >
+                        Turn OFF
+                    </button>
+                </div>
+            ) : null}
 
             <form
                 onSubmit={handleSubmit}
@@ -151,7 +174,11 @@ export default function Composer({
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="Ask Nova anything, search the web, or draft an email..."
+                    placeholder={
+                        battleMode
+                            ? "Ask a question to compare two AI models in battle..."
+                            : "Ask Nova anything, search the web, or draft an email..."
+                    }
                     className="w-full resize-none bg-transparent px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none max-h-40 overflow-y-auto leading-relaxed"
                 />
 

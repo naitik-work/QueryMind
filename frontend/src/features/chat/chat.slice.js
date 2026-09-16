@@ -10,7 +10,8 @@ const chatSlice = createSlice({
         streamingMessage: null,
         generationStatus: null,
         activeAction: null,
-        searchQuery: ""
+        searchQuery: "",
+        battleMode: typeof window !== "undefined" ? localStorage.getItem("nova_battle_mode") === "true" : false
     },
     reducers: {
         createNewChat: (state, action) => {
@@ -143,6 +144,18 @@ const chatSlice = createSlice({
             state.generationStatus = null;
             state.activeAction = null;
             state.error = null;
+        },
+        setBattleMode: (state, action) => {
+            state.battleMode = Boolean(action.payload);
+            if (typeof window !== "undefined") {
+                localStorage.setItem("nova_battle_mode", state.battleMode ? "true" : "false");
+            }
+        },
+        toggleBattleMode: (state) => {
+            state.battleMode = !state.battleMode;
+            if (typeof window !== "undefined") {
+                localStorage.setItem("nova_battle_mode", state.battleMode ? "true" : "false");
+            }
         }
     }
 });
@@ -164,7 +177,9 @@ export const {
     stopStreaming,
     deleteChatSuccess,
     renameChatSuccess,
-    resetActiveChat
+    resetActiveChat,
+    setBattleMode,
+    toggleBattleMode
 } = chatSlice.actions;
 
 export default chatSlice.reducer;
